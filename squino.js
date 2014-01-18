@@ -10,8 +10,8 @@ var app = express();
 
 var HELPSCOUT_USER_AGENT = 'Help Scout API / nodejs Client v0';
 var HELPSCOUT_API_URL = 'https://api.helpscout.net/v1/';
-var HELPSCOUT_API_KEY = '9af6bf37b48889c79d7390e6c13ae625b88f8274';
-var PRODPAD_API_KEY = 'f77faa62db32d2a27db83961f2dc2ed7dd47c958b8d3c60bd032916ea003fd0d';
+var HELPSCOUT_API_KEY = 'insert helpscout key';
+var PRODPAD_API_KEY = 'insert prodpad key';
 
 app.use(express.logger());
 
