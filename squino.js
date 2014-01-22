@@ -80,7 +80,7 @@ function runAPI( servRequest, servResponse )
 
   				resInner.on( 'end', function( ) {
   					servResponse.send(
-  						'{ "title" : "'+ ideaTitle+'", "summary" : "'+ ideaSummary + '", "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }' + "<br/>" +
+  						'{ "title" : "'+ ideaTitle+'", "summary" : "'+ ideaSummary + '", "tags" : [HelpScout], "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }' + "<br/>" +
   					 "response was: " + resInner.statusCode );
   				} );
 			});
@@ -88,7 +88,7 @@ function runAPI( servRequest, servResponse )
 			req.on('error', function(e) {
   				console.log('problem with request: ' + e.message);
   			});
-  			
+
 			// write data to request body
 			req.write( post_data );
 			req.end();			
