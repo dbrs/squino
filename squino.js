@@ -87,7 +87,7 @@ function runAPI( servRequest, servResponse )
   			
   				resInner.on( 'end', function( ) {
   					servResponse.send(  						
-  					 	"response was: " + resInner.statusCode 
+  					 	"The user feedback has been added to <a href='https://app.prodpad.com/company/dbrs/dashboard'>ProdPad</a>";
   					 );
   				} );		
 								
