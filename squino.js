@@ -43,8 +43,6 @@ function runAPI( servRequest, servResponse )
 		});
 
 		res.on('end', function( ) {
-			console.log( 'complete for '+servRequest.query.id );
-			//servResponse.send( '<p>got it</p>');
 
 			var obj = JSON.parse( body );
 
@@ -61,14 +59,15 @@ function runAPI( servRequest, servResponse )
 			// { "name" : "Bill Mahon" , "email" : "bill@example.come", "about" : "Signup after a trade exhibition", "feedback" : "love this product but it would be great if it rotated left as well', }
 
 			var post_feedback_data = '{ "name" : "' + feedbackName + '", "email" : "' + feedbackEmail + '", "about" : "' + ideaTitle + '", "feedback" : "' 
-				+ ideaSummary + '<br/><a href='+ideaUrl+'>Link to Help Scout</a>"}';
+				+ ideaSummary + '<br/><a href='+ideaUrl+'>Link to Help Scout Ticket</a>"}';
 
+			//path: '/api/v1/idea/create?apikey='+config.prodpad_key,
+				
 			var post_create_data = '{ "title" : "'+ ideaTitle+'", "summary" : "'+ ideaSummary + '", "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }';
 			var options2 = {
 				hostname: 'app.prodpad.com',
 				port: 443,
-				//path: '/api/v1/idea/create?apikey='+config.prodpad_key,
-				path: 'api/v1/feedback/create?apikey='+config.prodpad_key,
+				path: '/api/v1/feedback/create?apikey='+config.prodpad_key,
 				method: 'POST',
 				headers: {
           			'Content-Type': 'raw',
@@ -98,9 +97,9 @@ function runAPI( servRequest, servResponse )
   				console.log('problem with request: ' + e.message);
   			});
 
-			console.log( post_feedback_data );
 			// write data to request body
 			req.write( post_feedback_data );
+			console.log( post_feedback_data );
 			req.end();			
 
 			/*{ "title" :"testing titles", "summary" : "FWD: Magellen - IM BCG RMBS 2, FTA - European RMBS Transaction :: Hey Zac - still working out the kinks with Kev and the EU folks", "url" : "https://secure.helpscout.net/conversation/15688980", "external_id" : "15688980" }*/
