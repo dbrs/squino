@@ -87,7 +87,8 @@ function runAPI( servRequest, servResponse )
 
 			req.on('error', function(e) {
   				console.log('problem with request: ' + e.message);
-
+  			});
+  			
 			// write data to request body
 			req.write( post_data );
 			req.end();			
