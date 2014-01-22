@@ -5,13 +5,11 @@
 var express 	= require('express');
 var https 		= require('https');
 var url 		= require('url');
+var config	    = require('./squino_config');
 
 var app = express();
 
 var HELPSCOUT_USER_AGENT = 'Help Scout API / nodejs Client v0';
-var HELPSCOUT_API_URL = 'https://api.helpscout.net/v1/';
-var HELPSCOUT_API_KEY = '9af6bf37b48889c79d7390e6c13ae625b88f8274';
-var PRODPAD_API_KEY = 'f77faa62db32d2a27db83961f2dc2ed7dd47c958b8d3c60bd032916ea003fd0d';
 
 app.use(express.logger());
 
@@ -19,7 +17,7 @@ app.get( '/api', function( req, res ) {
 	runAPI( req, res );
 });
 
-app.listen( process.env.PORT || 8000 );
+app.listen( config.port );
 console.log( 'Started Squino Server');
 
 function runAPI( servRequest, servResponse )
@@ -34,7 +32,7 @@ function runAPI( servRequest, servResponse )
 		path: '/v1/conversations/'+servRequest.query.id+'.json',
 		// authentication headers
 		headers: {
-			'Authorization': 'Basic ' + new Buffer(HELPSCOUT_API_KEY + ':SortOfSecret').toString('base64')
+			'Authorization': 'Basic ' + new Buffer(config.helpscout_key + ':SortOfSecret').toString('base64')
 		}   	
 	};
 
@@ -62,7 +60,7 @@ function runAPI( servRequest, servResponse )
 			var options2 = {
 				hostname: 'app.prodpad.com',
 				port: 443,
-				path: '/api/v1/idea/create?apikey='+PRODPAD_API_KEY,
+				path: '/api/v1/idea/create?apikey='+config.prodpad_key,
 				method: 'POST',
 				headers: {
           			'Content-Type': 'raw',
@@ -92,7 +90,7 @@ function runAPI( servRequest, servResponse )
 			});
 
 			// write data to request body
-			//req.write( post_data );
+			req.write( post_data );
 			req.end();			
 
 			/*{ "title" :"testing titles", "summary" : "FWD: Magellen - IM BCG RMBS 2, FTA - European RMBS Transaction :: Hey Zac - still working out the kinks with Kev and the EU folks", "url" : "https://secure.helpscout.net/conversation/15688980", "external_id" : "15688980" }*/
