@@ -55,16 +55,24 @@ function runAPI( servRequest, servResponse )
 			var ideaSummary = obj.item.preview;
 			var ideaUrl = 'https://secure.helpscout.net/conversation/'+servRequest.query.id;
 			var ideaID = servRequest.query.id ;
+			var feedbackName = obj.item.customer.firstName + ' ' + obj.item.customer.lastName;
+			var feedbackEmail = obj.item.customer.email;
 
-			var post_data = '{ "title" : "'+ ideaTitle+'", "summary" : "'+ ideaSummary + '", "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }';
+			// { "name" : "Bill Mahon" , "email" : "bill@example.come", "about" : "Signup after a trade exhibition", "feedback" : "love this product but it would be great if it rotated left as well', }
+
+			var post_feedback_data = '{ "name" : "' + feedbackName + '", "email" : "' + feedbackEmail + '", "about" : "' + idealTitle + '", "feedback" : "' 
+				+ ideaSummary + '<br/><a href='+ideaUrl+'>Link to Help Scout</a>"}';
+
+			var post_create_data = '{ "title" : "'+ ideaTitle+'", "summary" : "'+ ideaSummary + '", "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }';
 			var options2 = {
 				hostname: 'app.prodpad.com',
 				port: 443,
-				path: '/api/v1/idea/create?apikey='+config.prodpad_key,
+				//path: '/api/v1/idea/create?apikey='+config.prodpad_key,
+				path: 'api/v1/feedback/create?apikey='+config.prodpad_key,
 				method: 'POST',
 				headers: {
           			'Content-Type': 'raw',
-          			'Content-Length': post_data.length
+          			'Content-Length': post_feedback_data.length
       			}
 			};
 
@@ -77,20 +85,22 @@ function runAPI( servRequest, servResponse )
 	    			innerBody += chunk;   			
 	    			console.log( chunk );
   				});
-
+  			
   				resInner.on( 'end', function( ) {
-  					servResponse.send(
-  						'{ "title" : "'+ ideaTitle+'", "summary" : "'+ ideaSummary + '", "tags" : [HelpScout], "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }' + "<br/>" +
-  					 "response was: " + resInner.statusCode );
-  				} );
+  					servResponse.send(  						
+  					 	"response was: " + resInner.statusCode 
+  					 );
+  				} );		
+								
 			});
 
 			req.on('error', function(e) {
   				console.log('problem with request: ' + e.message);
   			});
 
+			console.log( post_feedback_data );
 			// write data to request body
-			req.write( post_data );
+			req.write( post_feedback_data );
 			req.end();			
 
 			/*{ "title" :"testing titles", "summary" : "FWD: Magellen - IM BCG RMBS 2, FTA - European RMBS Transaction :: Hey Zac - still working out the kinks with Kev and the EU folks", "url" : "https://secure.helpscout.net/conversation/15688980", "external_id" : "15688980" }*/
