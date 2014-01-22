@@ -60,7 +60,7 @@ function runAPI( servRequest, servResponse )
 
 			// { "name" : "Bill Mahon" , "email" : "bill@example.come", "about" : "Signup after a trade exhibition", "feedback" : "love this product but it would be great if it rotated left as well', }
 
-			var post_feedback_data = '{ "name" : "' + feedbackName + '", "email" : "' + feedbackEmail + '", "about" : "' + idealTitle + '", "feedback" : "' 
+			var post_feedback_data = '{ "name" : "' + feedbackName + '", "email" : "' + feedbackEmail + '", "about" : "' + ideaTitle + '", "feedback" : "' 
 				+ ideaSummary + '<br/><a href='+ideaUrl+'>Link to Help Scout</a>"}';
 
 			var post_create_data = '{ "title" : "'+ ideaTitle+'", "summary" : "'+ ideaSummary + '", "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }';
