@@ -13,7 +13,7 @@ var HELPSCOUT_USER_AGENT = 'Help Scout API / nodejs Client v0';
 
 app.use(express.logger());
 
-app.get( '/api', function( req, res ) {
+app.get( '/feedback', function( req, res ) {
 	runAPI( req, res );
 });
 
