@@ -2,142 +2,103 @@
 	npm install express
 */
 
-var express 	= require('express');
-var https 		= require('https');
-var url 		= require('url');
-var config	    = require('./squino_config');
+var express 		= require('express');
+var https 			= require('https');
+var url 			= require('url');
+var config	    	= require('./squino_config');
+var YouTrackAPI 	= require('./lib/youtrackapi');
+var HelpScoutAPI 	= require('./lib/helpscoutapi');
+var ProdPadAPI   	= require('./lib/prodpadapi');
+
 
 var app = express();
 
-var HELPSCOUT_USER_AGENT = 'Help Scout API / nodejs Client v0';
-
 app.use(express.logger());
 
-app.get( '/feedback', function( req, res ) {
-	runAPI( req, res );
+app.get( '/prodpad/feedback', function( req, res ) {
+	runFeedback( req, res );
+})
+app.get( '/youtrack/create/ist', function( req, res ) {
+	runYouTrack( req, res, 'IST');
+});
+app.get( '/youtrack/create/inf', function( req, res ) {
+	runYouTrack( req, res, 'INF');
 });
 
 app.listen( config.port );
+
 console.log( 'Started Squino Server');
 
-function runAPI( servRequest, servResponse )
+function runYouTrack ( servRequest, servResponse, project )
 {
 
-	servResponse.header( "Content-Type", "application/json");
+	var youtrack = new YouTrackAPI( config.youtrack_url );
+	var helpscout = new HelpScoutAPI( config.helpscout_url, config.helpscout_key );
 
+	var conversationId = servRequest.query.id;
 	
-	var options = {
-   		host: 'api.helpscout.net',
-		port: 443,
-		path: '/v1/conversations/'+servRequest.query.id+'.json',
-		// authentication headers
-		headers: {
-			'Authorization': 'Basic ' + new Buffer(config.helpscout_key + ':SortOfSecret').toString('base64')
-		}   	
-	};
+	helpscout.getConversation( conversationId, function( err, data ) 
+	{	
+		if (err)	
+        {
+        	servResponse.send(  						
+  				"An error occurred with the HelpScout API, try again later: "+err
+  			);
+  			return;
+        }
 
-	request = https.get( options, function( res ) {
-		var body="";
-		res.on('data', function( data ) {
-			body += data;
-		});
+		youtrack.login( config.youtrack_user, config.youtrack_password, function(err, cookie) 
+		{
+				youtrack.cookie = cookie;	
 
-		res.on('end', function( ) {
+				youtrack.createIssue( 
+					project, 
+					data.item.subject, 
+					data.item.preview + '\r\nImported From: https://secure.helpscout.net/conversation/'+conversationId, 
+					function( err, body)
+					{			
+						console.log( 'Posted Issue to YouTrack:'+data.item.subject);
+						servResponse.send(  						
+  					 		"The issue has been added to <a href='http://help.dbrs.local'>YouTrack</a>"
+  					 	);
+					} 
+				);	
 
-			var obj = JSON.parse( body );
-
-			console.log( obj );
-			console.log( obj.item.subject + ' :: '+ obj.item.preview );
-			
-			var ideaTitle = obj.item.subject;
-			var ideaSummary = obj.item.preview;
-			var ideaUrl = 'https://secure.helpscout.net/conversation/'+servRequest.query.id;
-			var ideaID = servRequest.query.id ;
-			var feedbackName = obj.item.customer.firstName + ' ' + obj.item.customer.lastName;
-			var feedbackEmail = obj.item.customer.email;
-
-			// { "name" : "Bill Mahon" , "email" : "bill@example.come", "about" : "Signup after a trade exhibition", "feedback" : "love this product but it would be great if it rotated left as well', }
-
-			var post_feedback_data = '{ "name" : "' + feedbackName + '", "email" : "' + feedbackEmail + '", "about" : "' + ideaTitle + '", "feedback" : "' 
-				+ ideaSummary + '<br/><a href='+ideaUrl+'>Link to Help Scout Ticket</a>"}';
-
-			//path: '/api/v1/idea/create?apikey='+config.prodpad_key,
-				
-			var post_create_data = '{ "title" : "'+ ideaTitle+'", "summary" : "'+ ideaSummary + '", "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }';
-			var options2 = {
-				hostname: 'app.prodpad.com',
-				port: 443,
-				path: '/api/v1/feedback/create?apikey='+config.prodpad_key,
-				method: 'POST',
-				headers: {
-          			'Content-Type': 'raw',
-          			'Content-Length': post_feedback_data.length
-      			}
-			};
-
-			var req = https.request(options2, function(resInner) {
-				var innerBody = "";
-
-	  			console.log('STATUS: ' + resInner.statusCode);
-  				resInner.setEncoding('utf8');
-  				resInner.on('data', function (chunk) {
-	    			innerBody += chunk;   			
-	    			console.log( chunk );
-  				});
-  			
-  				resInner.on( 'end', function( ) {
-  					servResponse.send(  						
-  					 	"The user feedback has been added to <a href='https://app.prodpad.com/company/dbrs/dashboard'>ProdPad</a>"
-  					 );
-  				} );		
-								
-			});
-
-			req.on('error', function(e) {
-  				console.log('problem with request: ' + e.message);
-  			});
-
-			// write data to request body
-			req.write( post_feedback_data );
-			console.log( post_feedback_data );
-			req.end();			
-
-			/*{ "title" :"testing titles", "summary" : "FWD: Magellen - IM BCG RMBS 2, FTA - European RMBS Transaction :: Hey Zac - still working out the kinks with Kev and the EU folks", "url" : "https://secure.helpscout.net/conversation/15688980", "external_id" : "15688980" }*/
-
-		});
-
-		res.on( 'error', function( e ) {
-			console.log( 'Got error:'+e.message );			
-		});
-	});
-
-
-	//servResponse.send( '<b>Hello World</b>');
+			});			
+	} )
 }
 
-function createProdPadIdea( ideaSummary, ideaUrl, ideaID )
+function runFeedback( servRequest, servResponse )
 {
-	var options = {
-		hostname: 'app.prodpad.com',
-		port: 443,
-		path: '/api/v1/idea/create?apikey='+PRODPAD_API_KEY,
-		method: 'POST'
-	};
+	var helpscout = new HelpScoutAPI( config.helpscout_url, config.helpscout_key );
 
-	var req = https.request(options, function(res) {
-  			console.log('STATUS: ' + res.statusCode);
-  			console.log('HEADERS: ' + JSON.stringify(res.headers));
-  			res.setEncoding('utf8');
-  			res.on('data', function (chunk) {
-    			console.log('BODY: ' + chunk);
-  			});
-	});
+	var conversationId = servRequest.query.id;
 
-	req.on('error', function(e) {
-  		console.log('problem with request: ' + e.message);
-	});
+	helpscout.getConversation( conversationId, function( err, data ) {
+		
+		if (err)	
+        {
+        	servResponse.send(  						
+  				"An error occurred with the HelpScout API, try again later: "+err
+  			);
+  			return;
+        }
 
-	// write data to request body
-	req.write('{ "summary" : "'+ ideaSummary + '", "url" : "'+ ideaUrl +'", "external_id" : "'+ideaID+'" }');
-	req.end();
+		var prodpad = new ProdPadAPI( config.prodpad_url, config.prodpad_key );		
+
+		prodpad.createFeedback( 
+			data.item.customer.firstName + ' ' + data.item.customer.lastName,
+			data.item.customer.email,
+			data.item.subject,
+			data.item.preview + '<br/><a href=https://secure.helpscout.net/conversation/'+conversationId+'>Link to Help Scout Ticket</a>',
+				function( err, prodpadData ) {
+
+					helpscout.executeWorkflow( 6590, conversationId, function( err, dataWorkflow )
+					{
+						console.log( 'executed workflow: ' + err );
+						servResponse.send( "The user feedback has been added to <a href='https://app.prodpad.com/company/dbrs/dashboard'>ProdPad</a>" );
+					});
+				}
+			);		
+	} )
 }
