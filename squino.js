@@ -19,17 +19,17 @@ app.get( '/prodpad/feedback', function( req, res ) {
 	runFeedback( req, res );
 })
 app.get( '/youtrack/create/ist', function( req, res ) {
-	runYouTrack( req, res, 'IST');
+	runYouTrack( req, res, 'IST', 12442);
 });
 app.get( '/youtrack/create/inf', function( req, res ) {
-	runYouTrack( req, res, 'INF');
+	runYouTrack( req, res, 'INF', 13171);
 });
 
 app.listen( config.port );
 
 console.log( 'Started Squino Server');
 
-function runYouTrack ( servRequest, servResponse, project )
+function runYouTrack ( servRequest, servResponse, project, workflowId )
 {
 
 	var youtrack = new YouTrackAPI( config.youtrack_url );
@@ -58,9 +58,13 @@ function runYouTrack ( servRequest, servResponse, project )
 					function( err, body)
 					{			
 						console.log( 'Posted Issue to YouTrack:'+data.item.subject);
-						servResponse.send(  						
-  					 		"The issue has been added to <a href='http://help.dbrs.local'>YouTrack</a>"
-  					 	);
+						helpscout.executeWorkflow( workflowId, conversationId, function( err, dataWorkflow )
+						{
+							console.log( 'executed workflow: ' + err );
+							servResponse.send(  
+								"<head><script type='text/javascript'> window.location='https://secure.helpscout.net/conversation/"+conversationId+"';</script></head>"
+  					 		);
+						});						
 					} 
 				);	
 
@@ -96,7 +100,9 @@ function runFeedback( servRequest, servResponse )
 					helpscout.executeWorkflow( 6590, conversationId, function( err, dataWorkflow )
 					{
 						console.log( 'executed workflow: ' + err );
-						servResponse.send( "The user feedback has been added to <a href='https://app.prodpad.com/company/dbrs/dashboard'>ProdPad</a>" );
+						servResponse.send(  
+							"<head><script type='text/javascript'> window.location='https://secure.helpscout.net/conversation/"+conversationId+"';</script></head>"
+  					 	);
 					});
 				}
 			);		
