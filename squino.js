@@ -19,10 +19,10 @@ app.get( '/prodpad/feedback', function( req, res ) {
 	runFeedback( req, res );
 })
 app.get( '/youtrack/create/ist', function( req, res ) {
-	runYouTrack( req, res, 'IST', 12442);
+	runYouTrack( req, res, 'IST', 11301);
 });
 app.get( '/youtrack/create/inf', function( req, res ) {
-	runYouTrack( req, res, 'INF', 13171);
+	runYouTrack( req, res, 'INF', 11288);
 });
 
 app.listen( config.port );
