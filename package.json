@@ -1,0 +1,20 @@
+{
+  "name": "squino",
+  "version": "0.0.1",
+  "description": "Simple webservice to automate some helpscout/youtrack/prodpad integration",
+  "author": "Sean Lensborn <sean.lensborn@gmail.com>",
+  "keywords": [
+    "prodpad",
+    "youtrack",
+    "helpscout"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lensbos/squino"
+  },
+  "dependencies": {
+	 "express": "4.2.x",
+	 "request": "*",
+	 "morgan": "*"
+    }
+}

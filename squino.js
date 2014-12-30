@@ -2,18 +2,19 @@
 	npm install express
 */
 
-var express 		= require('express');
+var express 			= require('express');
 var https 			= require('https');
-var url 			= require('url');
-var config	    	= require('./squino_config');
-var YouTrackAPI 	= require('./lib/youtrackapi');
+var url 				= require('url');
+var morgan			= require('morgan');
+var config	    		= require('./squino_config');
+var YouTrackAPI 		= require('./lib/youtrackapi');
 var HelpScoutAPI 	= require('./lib/helpscoutapi');
 var ProdPadAPI   	= require('./lib/prodpadapi');
 
 
 var app = express();
 
-app.use(express.logger());
+app.use(morgan('combined'));
 
 app.get( '/prodpad/feedback', function( req, res ) {
 	runFeedback( req, res );
