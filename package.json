@@ -15,6 +15,7 @@
   "dependencies": {
 	 "express": "4.2.x",
 	 "request": "*",
-	 "morgan": "*"
+	 "morgan": "*",
+	 "node-slack": "*"
     }
 }

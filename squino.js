@@ -2,12 +2,14 @@
 	npm install express
 */
 
-var express 			= require('express');
-var https 			= require('https');
-var url 				= require('url');
-var morgan			= require('morgan');
-var config	    		= require('./squino_config');
-var YouTrackAPI 		= require('./lib/youtrackapi');
+var express 		= require('express');
+var https 		= require('https');
+var url 		= require('url');
+var morgan		= require('morgan');
+var request		= require('request');
+var slack		= require('node-slack');
+var config	    	= require('./squino_config');
+var YouTrackAPI 	= require('./lib/youtrackapi');
 var HelpScoutAPI 	= require('./lib/helpscoutapi');
 var ProdPadAPI   	= require('./lib/prodpadapi');
 
@@ -20,10 +22,10 @@ app.get( '/prodpad/feedback', function( req, res ) {
 	runFeedback( req, res );
 })
 app.get( '/youtrack/create/ist', function( req, res ) {
-	runYouTrack( req, res, 'IST', 11301);
+	runYouTrack( req, res, config.youtrack_project_1, config.youtrack_project_1_workflow);
 });
 app.get( '/youtrack/create/inf', function( req, res ) {
-	runYouTrack( req, res, 'INF', 11288);
+	runYouTrack( req, res, config.youtrack_project_2, config.youtrack_project_2_workflow);
 });
 
 app.listen( config.port );
@@ -41,15 +43,22 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 	helpscout.getConversation( conversationId, function( err, data ) 
 	{	
 		if (err)	
-        {
-        	servResponse.send(  						
-  				"An error occurred with the HelpScout API, try again later: "+err
+        	{
+        		servResponse.send( 
+				"An error occurred with the HelpScout API, try again later: "+err
   			);
   			return;
-        }
+        	}
 
-		youtrack.login( config.youtrack_user, config.youtrack_password, function(err, cookie) 
-		{
+		youtrack.login( config.youtrack_user, config.youtrack_password, function(err, cookie)
+			{
+
+				if (err)
+				{
+					servResponse.send( "An error occurred with the YouTrack API, try again later: "+err );
+					return;	
+				}
+
 				youtrack.cookie = cookie;	
 
 				youtrack.createIssue( 
@@ -61,7 +70,7 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 						console.log( 'Posted Issue to YouTrack:'+data.item.subject);
 						helpscout.executeWorkflow( workflowId, conversationId, function( err, dataWorkflow )
 						{
-							console.log( 'executed workflow: ' + err );
+							console.log( 'executed workflow error code(' + err +')');
 							servResponse.send(  
 								"<head><script type='text/javascript'> window.location='https://secure.helpscout.net/conversation/"+conversationId+"';</script></head>"
   					 		);
@@ -82,12 +91,12 @@ function runFeedback( servRequest, servResponse )
 	helpscout.getConversation( conversationId, function( err, data ) {
 		
 		if (err)	
-        {
-        	servResponse.send(  						
+        	{
+        		servResponse.send(  						
   				"An error occurred with the HelpScout API, try again later: "+err
   			);
   			return;
-        }
+        	}
 
 		var prodpad = new ProdPadAPI( config.prodpad_url, config.prodpad_key );		
 
@@ -97,6 +106,12 @@ function runFeedback( servRequest, servResponse )
 			data.item.subject,
 			data.item.preview + '<br/><a href=https://secure.helpscout.net/conversation/'+conversationId+'>Link to Help Scout Ticket</a>',
 				function( err, prodpadData ) {
+
+					if (err) 
+					{ 
+						servResponse.send( "An error occurred with the ProdPad API, try again later: "+err ) ;
+						return;
+					}
 
 					helpscout.executeWorkflow( 6590, conversationId, function( err, dataWorkflow )
 					{
