@@ -13,6 +13,7 @@ var YouTrackAPI 	= require('./lib/youtrackapi');
 var HelpScoutAPI 	= require('./lib/helpscoutapi');
 var ProdPadAPI   	= require('./lib/prodpadapi');
 var TurndownService = require('turndown');
+var moment = require('moment-timezone');
 
 var app = express();
 
@@ -82,12 +83,17 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 
 				youtrack.cookie = cookie;	
 
-				console.log(data.item.threads[minThreadIndex])
+				//console.log(data.item.threads[minThreadIndex])
 
 				var customerBlock = "";
 				var customerName = data.item.threads[minThreadIndex].createdBy.firstName + " " + data.item.threads[minThreadIndex].createdBy.lastName;
+				
+				var createdAtDefaultTZ = moment.tz(data.item.threads[minThreadIndex].createdAt, config.youtrack_default_timezone); 
+				var createdAtPretty = moment(createdAtDefaultTZ).format("dddd, MMMM Do YYYY, h:mm:ss a z")
 
-				customerBlock 	+= "\r\n**HelpScout Ticket Created At:** " + data.item.threads[minThreadIndex].createdAt 
+				console.log(createdAtPretty)
+
+				customerBlock 	+= "\r\n**HelpScout Ticket Created At:** " +  createdAtPretty
 								+ "\r\n**Customer Name:** " + customerName 
 								+ "\r\n**Customer Email:** " + data.item.threads[minThreadIndex].createdBy.email
 								+ "\r\n**Customer Phone:** " + data.item.threads[minThreadIndex].createdBy.phone
@@ -98,12 +104,13 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 				var turndownService = new TurndownService()
 				var bodyMarkdown = turndownService.turndown(data.item.threads[minThreadIndex].body)
 
-
+				var youtrackTicketBody = customerBlock + bodyMarkdown + '\r\n***\r\nImported From: https://secure.helpscout.net/conversation/' + conversationId
+				console.log(youtrackTicketBody)
 
 				youtrack.createIssue( 
 					project, 
 					data.item.subject, 
-					customerBlock + bodyMarkdown + '\r\nImported From: https://secure.helpscout.net/conversation/'+conversationId, 
+					youtrackTicketBody, 
 					function( err, body, ticketUrl)
 					{			
 						console.log( 'Posted Issue to YouTrack:'+data.item.subject);
@@ -126,7 +133,7 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
   					 	// 	);
 						// });						
 					} 
-				);	
+				);
 
 			});		
 	} )

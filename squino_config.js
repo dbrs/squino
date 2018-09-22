@@ -12,6 +12,8 @@ config.youtrack_project_1			= '3 Letter Name of Project 1';
 config.youtrack_project_1_workflow 		= 1; // workflow id to execute for project 1
 config.youtrack_project_2			= 'ICE';
 config.youtrack_project_2_workflow		= 2; // Workflow id to execute for project 2
+config.youtrack_default_timezone             = 'America/Toronto' //Timezone to use for printing date in Youtrack Ticket
+
 
 config.port = process.env.WEB_PORT || 8000;
 

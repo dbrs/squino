@@ -17,6 +17,7 @@
     "request": "*",
     "morgan": "*",
     "node-slack": "*",
-    "turndown": "*"
+    "turndown": "*",
+    "moment-timezone": "*"
   }
 }
