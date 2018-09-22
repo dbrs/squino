@@ -13,9 +13,10 @@
     "url": "https://github.com/lensbos/squino"
   },
   "dependencies": {
-	 "express": "4.2.x",
-	 "request": "*",
-	 "morgan": "*",
-	 "node-slack": "*"
-    }
+    "express": "4.2.x",
+    "request": "*",
+    "morgan": "*",
+    "node-slack": "*",
+    "turndown": "*"
+  }
 }
