@@ -59,12 +59,12 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 				minId = threadElem.id;
 				minThreadIndex = threadIndex;
 			}
-			console.log(threadElem.id);
+			//console.log(threadElem.id);
 			threadIndex++;
 		})
-		console.log( 'Found minId:' + minId );
-		console.log('Min Thread Index:' + minThreadIndex );
-		console.log(data.item.threads[minThreadIndex])
+		//console.log( 'Found minId:' + minId );
+		//console.log('Min Thread Index:' + minThreadIndex );
+		//console.log(data.item.threads[minThreadIndex])
 
 		// servResponse.send(
 		// 	data.item.threads[minThreadIndex].body
@@ -82,7 +82,16 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 
 				youtrack.cookie = cookie;	
 
-				//console.log(data.item.threads.body)
+				console.log(data.item.threads[minThreadIndex])
+
+				var customerBlock = "";
+				var customerName = data.item.threads[minThreadIndex].createdBy.firstName + " " + data.item.threads[minThreadIndex].createdBy.lastName;
+
+				customerBlock 	+= "\r\n**HelpScout Ticket Created At:** " + data.item.threads[minThreadIndex].createdAt 
+								+ "\r\n**Customer Name:** " + customerName 
+								+ "\r\n**Customer Email:** " + data.item.threads[minThreadIndex].createdBy.email
+								+ "\r\n**Customer Phone:** " + data.item.threads[minThreadIndex].createdBy.phone
+								+ "\r\n\r\n***\r\n"
 
 				
 
@@ -94,7 +103,7 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 				youtrack.createIssue( 
 					project, 
 					data.item.subject, 
-					bodyMarkdown + '\r\nImported From: https://secure.helpscout.net/conversation/'+conversationId, 
+					customerBlock + bodyMarkdown + '\r\nImported From: https://secure.helpscout.net/conversation/'+conversationId, 
 					function( err, body, ticketUrl)
 					{			
 						console.log( 'Posted Issue to YouTrack:'+data.item.subject);
