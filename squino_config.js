@@ -8,10 +8,8 @@ config.inbound_key 				= 'insert key';
 config.youtrack_url 				= 'http://help.dbrs.local';
 config.youtrack_user 				= 'smankoo@dbrs.com';
 config.youtrack_password 			= 'Sm123456';
-config.youtrack_project_1			= '3 Letter Name of Project 1';
-config.youtrack_project_1_workflow 		= 1; // workflow id to execute for project 1
 config.youtrack_project_2			= 'ICE';
-config.youtrack_project_2_workflow		= 2; // Workflow id to execute for project 2
+config.youtrack_project_2_workflow		= 407326; // Workflow id to execute for project 2
 config.youtrack_default_timezone             = 'America/Toronto' //Timezone to use for printing date in Youtrack Ticket
 
 

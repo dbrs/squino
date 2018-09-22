@@ -22,9 +22,6 @@ app.use(morgan('combined'));
 app.get( '/prodpad/feedback', function( req, res ) {
 	runFeedback( req, res );
 })
-app.get( '/youtrack/create/ist', function( req, res ) {
-	runYouTrack( req, res, config.youtrack_project_1, config.youtrack_project_1_workflow);
-});
 app.get( '/youtrack/create/ICE', function( req, res ) {
 	runYouTrack( req, res, config.youtrack_project_2, config.youtrack_project_2_workflow);
 });
@@ -91,7 +88,7 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 				var createdAtDefaultTZ = moment.tz(data.item.threads[minThreadIndex].createdAt, config.youtrack_default_timezone); 
 				var createdAtPretty = moment(createdAtDefaultTZ).format("dddd, MMMM Do YYYY, h:mm:ss a z")
 
-				console.log(createdAtPretty)
+				// console.log(createdAtPretty)
 
 				customerBlock 	+= "\r\n**HelpScout Ticket Created At:** " +  createdAtPretty
 								+ "\r\n**Customer Name:** " + customerName 
@@ -105,7 +102,7 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 				var bodyMarkdown = turndownService.turndown(data.item.threads[minThreadIndex].body)
 
 				var youtrackTicketBody = customerBlock + bodyMarkdown + '\r\n***\r\nImported From: https://secure.helpscout.net/conversation/' + conversationId
-				console.log(youtrackTicketBody)
+				// console.log(youtrackTicketBody)
 
 				youtrack.createIssue( 
 					project, 
@@ -113,25 +110,28 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 					youtrackTicketBody, 
 					function( err, body, ticketUrl)
 					{			
-						console.log( 'Posted Issue to YouTrack:'+data.item.subject);
+						// console.log( 'Posted Issue to YouTrack:'+data.item.subject);
 
 						var ticketNonRestUrl = ticketUrl.replace("/rest", "");
+	
+						// Commenting out HelpScout workflor for now. Let's first get YouTrack ticket creation working.
+						/*
+
+						helpscout.executeWorkflow( workflowId, conversationId, function( err, dataWorkflow )
+						{
+							console.log( 'executed workflow error code (' + err +')');
+							// servResponse.send(  
+							// 	"<head><script type='text/javascript'> window.location='https://secure.helpscout.net/conversation/"+conversationId+"';</script></head>"
+							   // );
+
+						});						
+						*/
 
 						servResponse.send(  
-								"<head><script type='text/javascript'> window.location='" + ticketNonRestUrl + "';</script></head>"
+							"<head><script type='text/javascript'> window.location='" + ticketNonRestUrl + "';</script></head>"
 						);
 
 						return;
-						
-						// Commenting out HelpScout workflor for now. Let's first get YouTrack ticket creation working.
-
-						// helpscout.executeWorkflow( workflowId, conversationId, function( err, dataWorkflow )
-						// {
-						// 	console.log( 'executed workflow error code(' + err +')');
-						// 	servResponse.send(  
-						// 		"<head><script type='text/javascript'> window.location='https://secure.helpscout.net/conversation/"+conversationId+"';</script></head>"
-  					 	// 	);
-						// });						
 					} 
 				);
 
