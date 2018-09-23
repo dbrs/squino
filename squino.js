@@ -26,7 +26,10 @@ app.get( '/youtrack/create/ICE', function( req, res ) {
 	runYouTrack( req, res, config.youtrack_project_2, config.youtrack_project_2_workflow);
 });
 
-app.listen( config.port );
+
+app.listen( config.port ); 
+
+module.exports = app; 
 
 console.log( 'Started Squino Server');
 

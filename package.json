@@ -19,5 +19,8 @@
     "node-slack": "*",
     "turndown": "*",
     "moment-timezone": "*"
+  },
+  "devDependencies": {
+    "claudia": "^5.1.1"
   }
 }
