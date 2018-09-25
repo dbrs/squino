@@ -118,8 +118,7 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 						var ticketNonRestUrl = ticketUrl.replace("/rest", "");
 	
 						// Commenting out HelpScout workflor for now. Let's first get YouTrack ticket creation working.
-						/*
-
+						
 						helpscout.executeWorkflow( workflowId, conversationId, function( err, dataWorkflow )
 						{
 							console.log( 'executed workflow error code (' + err +')');
@@ -128,7 +127,7 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 							   // );
 
 						});						
-						*/
+						
 
 						servResponse.send(  
 							"<head><script type='text/javascript'> window.location='" + ticketNonRestUrl + "';</script></head>"

@@ -1,3 +1,6 @@
+# Manual ignore
+*.ignore
+
 # Logs
 logs
 *.log
