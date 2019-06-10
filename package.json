@@ -14,11 +14,12 @@
   },
   "dependencies": {
     "express": "4.2.x",
-    "request": "*",
+    "moment-timezone": "*",
     "morgan": "*",
     "node-slack": "*",
+    "request": "*",
     "turndown": "*",
-    "moment-timezone": "*"
+    "utf8": "^3.0.0"
   },
   "devDependencies": {
     "claudia": "^5.1.1"

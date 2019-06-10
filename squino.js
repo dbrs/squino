@@ -14,6 +14,7 @@ var HelpScoutAPI 	= require('./lib/helpscoutapi');
 var ProdPadAPI   	= require('./lib/prodpadapi');
 var TurndownService = require('turndown');
 var moment = require('moment-timezone');
+var utf8 = require('utf8');
 
 var app = express();
 
@@ -102,10 +103,18 @@ function runYouTrack ( servRequest, servResponse, project, workflowId )
 				
 
 				var turndownService = new TurndownService()
+				console.log('Body before conversion----'+data.item.threads[minThreadIndex].body+'----')
 				var bodyMarkdown = turndownService.turndown(data.item.threads[minThreadIndex].body)
+				console.log('Body AFTER conversion----'+bodyMarkdown+'----')
 
-				var youtrackTicketBody = customerBlock + bodyMarkdown + '\r\n***\r\nImported From: https://secure.helpscout.net/conversation/' + conversationId
-				// console.log(youtrackTicketBody)
+				// bodyMarkdown = bodyMarkdown.substr(10,2)
+				bodyMarkdown = utf8.encode(bodyMarkdown)
+
+				var youtrackTicketBody = customerBlock 
+				youtrackTicketBody = youtrackTicketBody + bodyMarkdown
+				youtrackTicketBody = youtrackTicketBody + '\r\n***\r\nImported From: https://secure.helpscout.net/conversation/' + conversationId
+
+				// console.log('ticketbody----'+youtrackTicketBody+'----')
 
 				youtrack.createIssue( 
 					project, 
